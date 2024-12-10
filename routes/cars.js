@@ -16,12 +16,10 @@ router.get('/', function(req, res, next) {
 
 // localhost:3005/cars/carid/2
 router.get('/carid/:carid', function(req, res, next) {
-  console.log("req.params");
-  console.log(req.params);
-  console.log(req.headers);
+  console.log("req.params",req.params);
+  console.log("req.headers",req.headers);
   let carId = req.params.carid;
-  console.log("carId");
-  console.log(carId);
+  console.log("carId", carId);
 
   let car = [];
   for (let n = 0 ; n < cars.length ; n+=1) {
@@ -41,31 +39,53 @@ router.get('/carid/:carid', function(req, res, next) {
 });
 
 router.post('/', function(req, res, next) {
-  console.log(req.body);
-  // let name = req.body.name || "";
-  let fullname = req.body.name + " is a name";
-  if (req.body.price === undefined) {
-    return res.status(400).send({
-      message: 'This is an error!'
-    });
+  if (req.body.hasOwnProperty("name")
+      && req.body.hasOwnProperty("type")
+      && req.body.hasOwnProperty("color")) {
+        let id = cars[cars.length -1].id + 1;
+        let newCar = { id: id, name: req.body.name, type: req.body.type, color: req.body.color}
+        console.log("id ", id, " newcar: ", newCar);
+        cars.push(newCar);
+        res.send("new car added with id: "+ id)
+  } else {
+    res.status(400).send("attributes missing");
   }
-  let sum = req.body.price * 1.19;
-  res.send('post a car' + price);
 });
+
 
 router.put('/', function(req, res, next) {
-  res.send('update/put a car');
+  if (req.body.hasOwnProperty("id")
+    && req.body.hasOwnProperty("name")
+    && req.body.hasOwnProperty("type")
+    && req.body.hasOwnProperty("color")) {
+      console.log(req.body);
+      let carToUpdate = cars.find(car => car.id === parseInt(req.body.id));
+      console.log(carToUpdate);
+      if (carToUpdate === undefined) {
+        return res.send("ERROR: no car with id: "+ req.body.id)
+      }
+      carToUpdate.name = req.body.name; 
+      carToUpdate.type = req.body.type; 
+      carToUpdate.color = req.body.color; 
+      res.send("new car added with id: "+ req.body.id)
+    } else {
+      res.status(400).send("attributes missing");
+    }
 });
 
-router.delete('/', function(req, res, next) {
-  res.send('delete a car');
-});
 
-// Base-URL: localhost:3000 --> www.myseite.de
-// Route /cars
-// --> localhost:3000/cars/trailers
-router.get('/trailers', function(req, res, next) {
-  res.send('get the trailers');
+router.delete('/:id', function(req, res, next) {
+  if (req.params.hasOwnProperty("id")) {
+        let id = parseInt(req.params.id);
+        let idx = cars.find(car => car.id === id);
+        if (idx === undefined) {
+          return res.send("no car with id: "+ id)
+        }
+        cars = cars.filter(car => car.id !== id);
+        res.send("car deleted with id: "+ id)
+  } else {
+    res.status(404).send("attributes missing");
+  }
 });
 
 module.exports = router;
