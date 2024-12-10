@@ -8,7 +8,7 @@ router.get('/', function(req, res, next) {
 });
 
 router.post('/', function(req, res, next) {
-  console.log("body_", req.body.name);
+  console.log("body", req.body.name);
   res.send('added new data' + req.body.name);
 });
 
